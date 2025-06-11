@@ -13,7 +13,7 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
             height: 100vh;
             display: flex;
             align-items: center;
@@ -21,9 +21,10 @@
         }
         
         .container {
-            background: white;
+            background: #1a1a1a;
+            border: 2px solid #00ff41;
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 65, 0.2);
             width: 100%;
             max-width: 800px;
             height: 90vh;
@@ -33,7 +34,7 @@
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000000 0%, #00ff41 100%);
             color: white;
             padding: 20px;
             text-align: center;
@@ -49,9 +50,9 @@
         }
         
         .logout-btn, .admin-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
+            background: rgba(0, 255, 65, 0.2);
+            border: 1px solid #00ff41;
+            color: #00ff41;
             padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
@@ -59,22 +60,24 @@
         }
         
         .logout-btn:hover, .admin-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: rgba(0, 255, 65, 0.4);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
         }
         
         .messages {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background: #f8f9fa;
+            background: #0d0d0d;
         }
         
         .message {
             margin-bottom: 15px;
             padding: 15px;
             border-radius: 10px;
-            background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: #1a1a1a;
+            border: 1px solid #00ff41;
+            box-shadow: 0 2px 5px rgba(0, 255, 65, 0.1);
             animation: fadeIn 0.3s ease-in;
         }
         
@@ -88,16 +91,17 @@
             justify-content: space-between;
             margin-bottom: 8px;
             font-size: 12px;
-            color: #666;
+            color: #00ff41;
         }
         
         .username {
             font-weight: bold;
-            color: #667eea;
+            color: #00ff41;
         }
         
         .message-content {
             line-height: 1.4;
+            color: #ffffff;
         }
         
         .message-image {
@@ -105,10 +109,11 @@
             max-height: 300px;
             border-radius: 8px;
             margin-top: 10px;
+            border: 1px solid #00ff41;
         }
         
         .message-url {
-            color: #667eea;
+            color: #00ff41;
             text-decoration: none;
             margin-top: 10px;
             display: block;
@@ -116,12 +121,13 @@
         
         .message-url:hover {
             text-decoration: underline;
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
         }
         
         .input-area {
             padding: 20px;
-            border-top: 1px solid #eee;
-            background: white;
+            border-top: 1px solid #00ff41;
+            background: #1a1a1a;
         }
         
         .message-type-selector {
@@ -132,17 +138,22 @@
         
         .type-btn {
             padding: 8px 15px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
+            border: 2px solid #00ff41;
+            background: #000000;
+            color: #00ff41;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
         .type-btn.active {
-            background: #667eea;
-            color: white;
+            background: #00ff41;
+            color: #000000;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+        }
+        
+        .type-btn:hover {
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
         }
         
         .input-group {
@@ -154,14 +165,21 @@
         .input-field {
             flex: 1;
             padding: 12px;
-            border: 2px solid #eee;
+            border: 2px solid #00ff41;
             border-radius: 25px;
             outline: none;
             transition: border-color 0.3s;
+            background: #000000;
+            color: #00ff41;
         }
         
         .input-field:focus {
-            border-color: #667eea;
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .input-field::placeholder {
+            color: rgba(0, 255, 65, 0.5);
         }
         
         .file-input {
@@ -169,27 +187,30 @@
         }
         
         .file-btn, .send-btn {
-            background: #667eea;
-            color: white;
+            background: #00ff41;
+            color: #000000;
             border: none;
             padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: bold;
         }
         
         .file-btn:hover, .send-btn:hover {
-            background: #5a6fd8;
+            background: #00cc33;
             transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
         }
         
         .login-form, .register-form, .admin-panel {
             max-width: 400px;
             margin: 0 auto;
             padding: 40px;
-            background: white;
+            background: #1a1a1a;
+            border: 2px solid #00ff41;
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 65, 0.2);
         }
         
         .form-group {
@@ -200,36 +221,45 @@
             display: block;
             margin-bottom: 5px;
             font-weight: bold;
-            color: #333;
+            color: #00ff41;
         }
         
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #eee;
+            border: 2px solid #00ff41;
             border-radius: 8px;
             outline: none;
             transition: border-color 0.3s;
+            background: #000000;
+            color: #00ff41;
         }
         
         .form-group input:focus {
-            border-color: #667eea;
+            border-color: #00ff41;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(0, 255, 65, 0.5);
         }
         
         .btn-primary {
             width: 100%;
-            background: #667eea;
-            color: white;
+            background: #00ff41;
+            color: #000000;
             border: none;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
             transition: background 0.3s;
         }
         
         .btn-primary:hover {
-            background: #5a6fd8;
+            background: #00cc33;
+            box-shadow: 0 5px 15px rgba(0, 255, 65, 0.3);
         }
         
         .switch-form {
@@ -238,20 +268,25 @@
         }
         
         .switch-form a {
-            color: #667eea;
+            color: #00ff41;
             text-decoration: none;
+        }
+        
+        .switch-form a:hover {
+            text-shadow: 0 0 5px rgba(0, 255, 65, 0.5);
         }
         
         .admin-section {
             margin: 20px 0;
             padding: 20px;
-            border: 1px solid #eee;
+            border: 1px solid #00ff41;
             border-radius: 8px;
+            background: #0d0d0d;
         }
         
         .admin-section h3 {
             margin-bottom: 15px;
-            color: #333;
+            color: #00ff41;
         }
         
         .user-list {
@@ -264,7 +299,8 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #00ff41;
+            color: #ffffff;
         }
         
         .user-actions button {
@@ -276,17 +312,32 @@
         }
         
         .btn-danger {
-            background: #dc3545;
+            background: #ff0040;
             color: white;
         }
         
+        .btn-danger:hover {
+            background: #cc0033;
+            box-shadow: 0 0 10px rgba(255, 0, 64, 0.3);
+        }
+        
         .btn-warning {
-            background: #ffc107;
+            background: #ffaa00;
             color: black;
+        }
+        
+        .btn-warning:hover {
+            background: #cc8800;
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
         }
         
         .hidden {
             display: none;
+        }
+        
+        h1, h2 {
+            color: #00ff41;
+            text-shadow: 0 0 10px rgba(0, 255, 65, 0.3);
         }
     </style>
 </head>
