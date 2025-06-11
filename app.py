@@ -1,3 +1,101 @@
+from flask import Flask, render_template_string, request, jsonify, session, redirect, url_for, send_from_directory
+import sqlite3
+import hashlib
+import uuid
+import os
+import base64
+from datetime import datetime
+import secrets
+
+app = Flask(__name__)
+app.secret_key = secrets.token_hex(16)
+
+# Configuration
+DATABASE = 'chatroom.db'
+UPLOAD_FOLDER = 'uploads'
+MAX_IMAGE_SIZE = 1024 * 1024  # 1MB default
+
+# Ensure upload directory exists
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+def init_db():
+    """Initialize the database with required tables"""
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    # Users table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            email TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            is_banned BOOLEAN DEFAULT 0,
+            is_admin BOOLEAN DEFAULT 0
+        )
+    ''')
+    
+    # Messages table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            username TEXT NOT NULL,
+            message_type TEXT NOT NULL,
+            content TEXT,
+            image_data TEXT,
+            url TEXT,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Settings table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    ''')
+    
+    # Insert default settings
+    cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', ('max_image_size', str(MAX_IMAGE_SIZE)))
+    cursor.execute('INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)', ('admin_password', 'admin123'))
+    
+    # Create default admin user
+    admin_hash = hashlib.sha256('admin123'.encode()).hexdigest()
+    cursor.execute('INSERT OR IGNORE INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)', ('admin', admin_hash, 1))
+    
+    conn.commit()
+    conn.close()
+
+def get_db_connection():
+    """Get database connection"""
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+def hash_password(password):
+    """Hash password using SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def get_setting(key):
+    """Get setting value from database"""
+    conn = get_db_connection()
+    result = conn.execute('SELECT value FROM settings WHERE key = ?', (key,)).fetchone()
+    conn.close()
+    return result['value'] if result else None
+
+def update_setting(key, value):
+    """Update setting in database"""
+    conn = get_db_connection()
+    conn.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', (key, value))
+    conn.commit()
+    conn.close()
+
+# HTML Template
+HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -676,4 +774,307 @@
         
         function toggleBan(userId, isBanned) {
             fetch('/api/admin/toggle_ban', {
-                metho
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId, ban: !isBanned})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminData();
+                } else {
+                    alert('Error updating user status');
+                }
+            });
+        }
+        
+        function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                fetch('/api/admin/delete_user', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({user_id: userId})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        loadAdminData();
+                    } else {
+                        alert('Error deleting user');
+                    }
+                });
+            }
+        }
+        
+        function deleteAllMessages() {
+            if (confirm('Are you sure you want to delete ALL messages? This cannot be undone!')) {
+                fetch('/api/admin/delete_all_messages', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('All messages deleted successfully!');
+                        loadMessages();
+                    } else {
+                        alert('Error deleting messages');
+                    }
+                });
+            }
+        }
+        
+        // Allow Enter key to send messages
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && (e.target.id === 'messageInput' || e.target.id === 'urlInput')) {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
+'''
+
+@app.route('/')
+def index():
+    return render_template_string(HTML_TEMPLATE)
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username', '').strip()
+    email = data.get('email', '').strip()
+    password = data.get('password', '')
+    
+    if not username or not password:
+        return jsonify({'success': False, 'message': 'Username and password are required'})
+    
+    try:
+        conn = get_db_connection()
+        password_hash = hash_password(password)
+        conn.execute('INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)', 
+                    (username, password_hash, email if email else None))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except sqlite3.IntegrityError:
+        return jsonify({'success': False, 'message': 'Username already exists'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Registration failed'})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username', '').strip()
+    password = data.get('password', '')
+    
+    if not username or not password:
+        return jsonify({'success': False, 'message': 'Username and password are required'})
+    
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM users WHERE username = ?', (username,)).fetchone()
+    conn.close()
+    
+    if user and user['password_hash'] == hash_password(password):
+        if user['is_banned']:
+            return jsonify({'success': False, 'message': 'Your account has been banned'})
+        
+        session['user_id'] = user['id']
+        session['username'] = user['username']
+        session['is_admin'] = user['is_admin']
+        return jsonify({'success': True, 'is_admin': user['is_admin']})
+    else:
+        return jsonify({'success': False, 'message': 'Invalid username or password'})
+
+@app.route('/api/logout', methods=['POST'])
+def logout():
+    session.clear()
+    return jsonify({'success': True})
+
+@app.route('/api/check_login')
+def check_login():
+    if 'user_id' in session:
+        return jsonify({
+            'logged_in': True, 
+            'username': session['username'],
+            'is_admin': session.get('is_admin', False)
+        })
+    return jsonify({'logged_in': False})
+
+@app.route('/api/send_message', methods=['POST'])
+def send_message():
+    if 'user_id' not in session:
+        return jsonify({'success': False, 'message': 'Not logged in'})
+    
+    message_type = request.form.get('message_type')
+    content = request.form.get('content', '').strip()
+    url = request.form.get('url', '').strip()
+    image_data = None
+    
+    # Handle image upload
+    if 'image' in request.files:
+        image_file = request.files['image']
+        if image_file and image_file.filename:
+            # Check file size
+            max_size = int(get_setting('max_image_size'))
+            image_file.seek(0, 2)  # Seek to end
+            file_size = image_file.tell()
+            image_file.seek(0)  # Reset to beginning
+            
+            if file_size > max_size:
+                return jsonify({'success': False, 'message': f'Image too large. Max size: {max_size/1024}KB'})
+            
+            # Convert to base64
+            image_data = base64.b64encode(image_file.read()).decode('utf-8')
+    
+    # Validate message content
+    if message_type == 'text' and not content:
+        return jsonify({'success': False, 'message': 'Message content required'})
+    elif message_type == 'image' and not image_data:
+        return jsonify({'success': False, 'message': 'Image required'})
+    elif message_type == 'url' and not url:
+        return jsonify({'success': False, 'message': 'URL required'})
+    elif message_type == 'text+image' and not content and not image_data:
+        return jsonify({'success': False, 'message': 'Text or image required'})
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('''
+            INSERT INTO messages (user_id, username, message_type, content, image_data, url)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (session['user_id'], session['username'], message_type, content or None, image_data, url or None))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Failed to send message'})
+
+@app.route('/api/messages')
+def get_messages():
+    if 'user_id' not in session:
+        return jsonify({'messages': []})
+    
+    conn = get_db_connection()
+    messages = conn.execute('''
+        SELECT * FROM messages 
+        ORDER BY timestamp DESC 
+        LIMIT 50
+    ''').fetchall()
+    conn.close()
+    
+    messages_list = []
+    for msg in reversed(messages):
+        messages_list.append({
+            'id': msg['id'],
+            'username': msg['username'],
+            'message_type': msg['message_type'],
+            'content': msg['content'],
+            'image_data': msg['image_data'],
+            'url': msg['url'],
+            'timestamp': msg['timestamp']
+        })
+    
+    return jsonify({'messages': messages_list})
+
+@app.route('/api/admin/settings')
+def admin_get_settings():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    max_image_size = get_setting('max_image_size')
+    return jsonify({
+        'max_image_size': int(max_image_size) if max_image_size else 1024*1024
+    })
+
+@app.route('/api/admin/update_settings', methods=['POST'])
+def admin_update_settings():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.get_json()
+    max_image_size = data.get('max_image_size')
+    
+    if max_image_size:
+        update_setting('max_image_size', str(max_image_size))
+    
+    return jsonify({'success': True})
+
+@app.route('/api/admin/users')
+def admin_get_users():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    conn = get_db_connection()
+    users = conn.execute('SELECT id, username, email, created_at, is_banned, is_admin FROM users ORDER BY created_at DESC').fetchall()
+    conn.close()
+    
+    users_list = []
+    for user in users:
+        users_list.append({
+            'id': user['id'],
+            'username': user['username'],
+            'email': user['email'],
+            'created_at': user['created_at'],
+            'is_banned': user['is_banned'],
+            'is_admin': user['is_admin']
+        })
+    
+    return jsonify({'users': users_list})
+
+@app.route('/api/admin/toggle_ban', methods=['POST'])
+def admin_toggle_ban():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.get_json()
+    user_id = data.get('user_id')
+    ban = data.get('ban')
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('UPDATE users SET is_banned = ? WHERE id = ?', (ban, user_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/admin/delete_user', methods=['POST'])
+def admin_delete_user():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    data = request.get_json()
+    user_id = data.get('user_id')
+    
+    # Don't allow deleting admin user
+    if user_id == session['user_id']:
+        return jsonify({'success': False, 'message': 'Cannot delete your own account'})
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('DELETE FROM messages WHERE user_id = ?', (user_id,))
+        conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/admin/delete_all_messages', methods=['POST'])
+def admin_delete_all_messages():
+    if 'user_id' not in session or not session.get('is_admin'):
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    try:
+        conn = get_db_connection()
+        conn.execute('DELETE FROM messages')
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+if __name__ == '__main__':
+    init_db()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
