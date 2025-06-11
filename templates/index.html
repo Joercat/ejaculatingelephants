@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn, .admin-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover, .admin-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .username {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .message-content {
+            line-height: 1.4;
+        }
+        
+        .message-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .message-url {
+            color: #667eea;
+            text-decoration: none;
+            margin-top: 10px;
+            display: block;
+        }
+        
+        .message-url:hover {
+            text-decoration: underline;
+        }
+        
+        .input-area {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        
+        .message-type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .type-btn {
+            padding: 8px 15px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .type-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: #667eea;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-btn, .send-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .file-btn:hover, .send-btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .login-form, .register-form, .admin-panel {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #667eea;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+        
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .switch-form a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .admin-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .admin-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .user-actions button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: black;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Form -->
+    <div id="loginForm" class="login-form">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Login to Chatroom</h2>
+        <form onsubmit="login(event)">
+            <div class="form-group">
+                <label for="loginUsername">Username:</label>
+                <input type="text" id="loginUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <div class="switch-form">
+            <a href="#" onclick="showRegister()">Don't have an account? Register here</a>
+        </div>
+    </div>
+    
+    <!-- Register Form -->
+    <div id="registerForm" class="register-form hidden">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Create Account</h2>
+        <form onsubmit="register(event)">
+            <div class="form-group">
+                <label for="regUsername">Username:</label>
+                <input type="text" id="regUsername" required>
+            </div>
+            <div class="form-group">
+                <label for="regEmail">Email (optional):</label>
+                <input type="email" id="regEmail">
+            </div>
+            <div class="form-group">
+                <label for="regPassword">Password:</label>
+                <input type="password" id="regPassword" required>
+            </div>
+            <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+        <div class="switch-form">
+            <a href="#" onclick="showLogin()">Already have an account? Login here</a>
+        </div>
+    </div>
+    
+    <!-- Chat Interface -->
+    <div id="chatInterface" class="container hidden">
+        <div class="header">
+            <h1>💬 Chatroom</h1>
+            <div class="user-info">
+                <span id="currentUser"></span>
+                <button class="admin-btn" id="adminBtn" onclick="showAdmin()" style="display: none;">Admin</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+        
+        <div class="messages" id="messages"></div>
+        
+        <div class="input-area">
+            <div class="message-type-selector">
+                <button class="type-btn active" onclick="setMessageType('text')">Text</button>
+                <button class="type-btn" onclick="setMessageType('image')">Image</button>
+                <button class="type-btn" onclick="setMessageType('text+image')">Text + Image</button>
+                <button class="type-btn" onclick="setMessageType('url')">URL</button>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" class="input-field" id="messageInput" placeholder="Type your message...">
+                <input type="url" class="input-field hidden" id="urlInput" placeholder="Enter URL...">
+                <input type="file" class="file-input" id="imageInput" accept="image/*">
+                <button class="file-btn hidden" id="fileBtn" onclick="document.getElementById('imageInput').click()">📁</button>
+                <button class="send-btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Admin Panel -->
+    <div id="adminPanel" class="admin-panel hidden">
+        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Admin Dashboard</h2>
+        
+        <div class="admin-section">
+            <h3>Settings</h3>
+            <div class="form-group">
+                <label for="maxImageSize">Max Image Size (KB):</label>
+                <input type="number" id="maxImageSize" value="1024">
+                <button onclick="updateSettings()" style="margin-top: 10px;" class="btn-primary">Update Settings</button>
+            </div>
+        </div>
+        
+        <div class="admin-section">
+            <h3>Users</h3>
+            <div id="usersList" class="user-list"></div>
+        </div>
+        
+        <div class="admin-section">
+            <h3>Actions</h3>
+            <button onclick="deleteAllMessages()" class="btn-danger" style="width: 100%; margin-bottom: 10px;">Delete All Messages</button>
+        </div>
+        
+        <button onclick="hideAdmin()" class="btn-primary">Back to Chat</button>
+    </div>
+    
+    <script>
+        let currentMessageType = 'text';
+        let currentUser = null;
+        let isAdmin = false;
+        
+        // Check if user is logged in on page load
+        window.onload = function() {
+            checkLoginStatus();
+            if (currentUser) {
+                loadMessages();
+                setInterval(loadMessages, 2000); // Poll for new messages every 2 seconds
+            }
+        };
+        
+        function checkLoginStatus() {
+            fetch('/api/check_login')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.logged_in) {
+                        currentUser = data.username;
+                        isAdmin = data.is_admin;
+                        showChat();
+                    }
+                });
+        }
+        
+        function login(event) {
+            event.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, password})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentUser = username;
+                    isAdmin = data.is_admin;
+                    showChat();
+                    loadMessages();
+                    setInterval(loadMessages, 2000);
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+        
+        function register(event) {
+            event.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            
+            fetch('/api/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username, email, password})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account created successfully! Please login.');
+                    showLogin();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+        
+        function logout() {
+            fetch('/api/logout', {method: 'POST'})
+                .then(() => {
+                    currentUser = null;
+                    isAdmin = false;
+                    showLogin();
+                });
+        }
+        
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('chatInterface').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+        
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('chatInterface').classList.add('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+        }
+        
+        function showChat() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('currentUser').textContent = currentUser;
+            
+            if (isAdmin) {
+                document.getElementById('adminBtn').style.display = 'block';
+            }
+        }
+        
+        function showAdmin() {
+            if (!isAdmin) return;
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('chatInterface').classList.add('hidden');
+            loadAdminData();
+        }
+        
+        function hideAdmin() {
+            document.getElementById('adminPanel').classList.add('hidden');
+            document.getElementById('chatInterface').classList.remove('hidden');
+        }
+        
+        function setMessageType(type) {
+            currentMessageType = type;
+            
+            // Update button states
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show/hide relevant inputs
+            const messageInput = document.getElementById('messageInput');
+            const urlInput = document.getElementById('urlInput');
+            const fileBtn = document.getElementById('fileBtn');
+            
+            messageInput.classList.add('hidden');
+            urlInput.classList.add('hidden');
+            fileBtn.classList.add('hidden');
+            
+            if (type === 'text') {
+                messageInput.classList.remove('hidden');
+                messageInput.placeholder = 'Type your message...';
+            } else if (type === 'image') {
+                fileBtn.classList.remove('hidden');
+            } else if (type === 'text+image') {
+                messageInput.classList.remove('hidden');
+                fileBtn.classList.remove('hidden');
+                messageInput.placeholder = 'Type your message...';
+            } else if (type === 'url') {
+                messageInput.classList.remove('hidden');
+                urlInput.classList.remove('hidden');
+                messageInput.placeholder = 'Description (optional)...';
+            }
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const urlInput = document.getElementById('urlInput');
+            const imageInput = document.getElementById('imageInput');
+            
+            const formData = new FormData();
+            formData.append('message_type', currentMessageType);
+            
+            if (currentMessageType === 'text') {
+                if (!messageInput.value.trim()) return;
+                formData.append('content', messageInput.value.trim());
+            } else if (currentMessageType === 'image') {
+                if (!imageInput.files[0]) return;
+                formData.append('image', imageInput.files[0]);
+            } else if (currentMessageType === 'text+image') {
+                if (!messageInput.value.trim() && !imageInput.files[0]) return;
+                formData.append('content', messageInput.value.trim());
+                if (imageInput.files[0]) {
+                    formData.append('image', imageInput.files[0]);
+                }
+            } else if (currentMessageType === 'url') {
+                if (!urlInput.value.trim()) return;
+                formData.append('url', urlInput.value.trim());
+                formData.append('content', messageInput.value.trim());
+            }
+            
+            fetch('/api/send_message', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageInput.value = '';
+                    urlInput.value = '';
+                    imageInput.value = '';
+                    loadMessages();
+                } else {
+                    alert(data.message);
+                }
+            });
+        }
+        
+        function loadMessages() {
+            fetch('/api/messages')
+                .then(response => response.json())
+                .then(data => {
+                    const messagesDiv = document.getElementById('messages');
+                    messagesDiv.innerHTML = '';
+                    
+                    data.messages.forEach(message => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        
+                        let messageContent = `
+                            <div class="message-header">
+                                <span class="username">${message.username}</span>
+                                <span>${new Date(message.timestamp).toLocaleString()}</span>
+                            </div>
+                            <div class="message-content">
+                        `;
+                        
+                        if (message.content) {
+                            messageContent += `<div>${message.content}</div>`;
+                        }
+                        
+                        if (message.image_data) {
+                            messageContent += `<img src="data:image/jpeg;base64,${message.image_data}" class="message-image" alt="Image">`;
+                        }
+                        
+                        if (message.url) {
+                            messageContent += `<a href="${message.url}" target="_blank" class="message-url">${message.url}</a>`;
+                        }
+                        
+                        messageContent += `</div>`;
+                        messageDiv.innerHTML = messageContent;
+                        messagesDiv.appendChild(messageDiv);
+                    });
+                    
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                });
+        }
+        
+        function loadAdminData() {
+            // Load current settings
+            fetch('/api/admin/settings')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('maxImageSize').value = Math.floor(data.max_image_size / 1024);
+                });
+            
+            // Load users
+            fetch('/api/admin/users')
+                .then(response => response.json())
+                .then(data => {
+                    const usersList = document.getElementById('usersList');
+                    usersList.innerHTML = '';
+                    
+                    data.users.forEach(user => {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'user-item';
+                        userDiv.innerHTML = `
+                            <span>${user.username} (${user.email || 'No email'}) ${user.is_banned ? '[BANNED]' : ''}</span>
+                            <div class="user-actions">
+                                <button onclick="toggleBan(${user.id}, ${user.is_banned})" class="btn-warning">
+                                    ${user.is_banned ? 'Unban' : 'Ban'}
+                                </button>
+                                <button onclick="deleteUser(${user.id})" class="btn-danger">Delete</button>
+                            </div>
+                        `;
+                        usersList.appendChild(userDiv);
+                    });
+                });
+        }
+        
+        function updateSettings() {
+            const maxImageSize = document.getElementById('maxImageSize').value * 1024;
+            
+            fetch('/api/admin/update_settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({max_image_size: maxImageSize})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Settings updated successfully!');
+                } else {
+                    alert('Error updating settings');
+                }
+            });
+        }
+        
+        function toggleBan(userId, isBanned) {
+            fetch('/api/admin/toggle_ban', {
+                metho
