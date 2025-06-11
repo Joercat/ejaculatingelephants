@@ -676,4 +676,52 @@
         
         function toggleBan(userId, isBanned) {
             fetch('/api/admin/toggle_ban', {
-                metho
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId, ban: !isBanned})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminData();
+                } else {
+                    alert('Error updating user ban status');
+                }
+            });
+        }
+
+        function deleteUser(userId) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+            fetch('/api/admin/delete_user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_id: userId})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadAdminData();
+                } else {
+                    alert('Failed to delete user.');
+                }
+            });
+        }
+
+        function deleteAllMessages() {
+            if (!confirm('Are you sure you want to delete all messages? This cannot be undone.')) return;
+            fetch('/api/admin/delete_all_messages', {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadMessages();
+                    alert('All messages deleted.');
+                } else {
+                    alert('Failed to delete messages.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>
