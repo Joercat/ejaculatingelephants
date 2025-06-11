@@ -111,7 +111,7 @@ HTML_TEMPLATE = '''
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
             height: 100vh;
             display: flex;
             align-items: center;
@@ -121,23 +121,25 @@ HTML_TEMPLATE = '''
         .container {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 0, 0.3);
             width: 100%;
             max-width: 800px;
             height: 90vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            border: 2px solid #00ff00;
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+            color: #00ff00;
             padding: 20px;
             text-align: center;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #00ff00;
         }
         
         .user-info {
@@ -147,9 +149,9 @@ HTML_TEMPLATE = '''
         }
         
         .logout-btn, .admin-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            color: #00ff00;
             padding: 8px 15px;
             border-radius: 20px;
             cursor: pointer;
@@ -157,7 +159,9 @@ HTML_TEMPLATE = '''
         }
         
         .logout-btn:hover, .admin-btn:hover {
-            background: rgba(255,255,255,0.3);
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 10px #00ff00;
         }
         
         .messages {
@@ -172,8 +176,9 @@ HTML_TEMPLATE = '''
             padding: 15px;
             border-radius: 10px;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 5px rgba(0, 255, 0, 0.1);
             animation: fadeIn 0.3s ease-in;
+            border-left: 4px solid #00ff00;
         }
         
         @keyframes fadeIn {
@@ -191,7 +196,7 @@ HTML_TEMPLATE = '''
         
         .username {
             font-weight: bold;
-            color: #667eea;
+            color: #00ff00;
         }
         
         .message-content {
@@ -206,7 +211,7 @@ HTML_TEMPLATE = '''
         }
         
         .message-url {
-            color: #667eea;
+            color: #00ff00;
             text-decoration: none;
             margin-top: 10px;
             display: block;
@@ -214,11 +219,12 @@ HTML_TEMPLATE = '''
         
         .message-url:hover {
             text-decoration: underline;
+            text-shadow: 0 0 5px #00ff00;
         }
         
         .input-area {
             padding: 20px;
-            border-top: 1px solid #eee;
+            border-top: 2px solid #00ff00;
             background: white;
         }
         
@@ -230,17 +236,22 @@ HTML_TEMPLATE = '''
         
         .type-btn {
             padding: 8px 15px;
-            border: 2px solid #667eea;
+            border: 2px solid #00ff00;
             background: white;
-            color: #667eea;
+            color: #00ff00;
             border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s;
         }
         
         .type-btn.active {
-            background: #667eea;
-            color: white;
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 10px #00ff00;
+        }
+        
+        .type-btn:hover {
+            box-shadow: 0 0 5px #00ff00;
         }
         
         .input-group {
@@ -252,14 +263,15 @@ HTML_TEMPLATE = '''
         .input-field {
             flex: 1;
             padding: 12px;
-            border: 2px solid #eee;
+            border: 2px solid #00ff00;
             border-radius: 25px;
             outline: none;
             transition: border-color 0.3s;
         }
         
         .input-field:focus {
-            border-color: #667eea;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
         
         .file-input {
@@ -267,17 +279,20 @@ HTML_TEMPLATE = '''
         }
         
         .file-btn, .send-btn {
-            background: #667eea;
-            color: white;
-            border: none;
+            background: #00ff00;
+            color: #000000;
+            border: 2px solid #00ff00;
             padding: 12px 20px;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: bold;
         }
         
         .file-btn:hover, .send-btn:hover {
-            background: #5a6fd8;
+            background: #000000;
+            color: #00ff00;
+            box-shadow: 0 0 15px #00ff00;
             transform: translateY(-2px);
         }
         
@@ -287,7 +302,8 @@ HTML_TEMPLATE = '''
             padding: 40px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(0, 255, 0, 0.3);
+            border: 2px solid #00ff00;
         }
         
         .form-group {
@@ -304,30 +320,34 @@ HTML_TEMPLATE = '''
         .form-group input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #eee;
+            border: 2px solid #00ff00;
             border-radius: 8px;
             outline: none;
             transition: border-color 0.3s;
         }
         
         .form-group input:focus {
-            border-color: #667eea;
+            border-color: #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
         
         .btn-primary {
             width: 100%;
-            background: #667eea;
-            color: white;
-            border: none;
+            background: #00ff00;
+            color: #000000;
+            border: 2px solid #00ff00;
             padding: 12px;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
-            transition: background 0.3s;
+            font-weight: bold;
+            transition: all 0.3s;
         }
         
         .btn-primary:hover {
-            background: #5a6fd8;
+            background: #000000;
+            color: #00ff00;
+            box-shadow: 0 0 15px #00ff00;
         }
         
         .switch-form {
@@ -336,15 +356,21 @@ HTML_TEMPLATE = '''
         }
         
         .switch-form a {
-            color: #667eea;
+            color: #00ff00;
             text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .switch-form a:hover {
+            text-shadow: 0 0 5px #00ff00;
         }
         
         .admin-section {
             margin: 20px 0;
             padding: 20px;
-            border: 1px solid #eee;
+            border: 2px solid #00ff00;
             border-radius: 8px;
+            background: rgba(0, 255, 0, 0.05);
         }
         
         .admin-section h3 {
@@ -362,36 +388,60 @@ HTML_TEMPLATE = '''
             justify-content: space-between;
             align-items: center;
             padding: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid #00ff00;
         }
         
         .user-actions button {
             margin-left: 5px;
             padding: 5px 10px;
-            border: none;
+            border: 2px solid;
             border-radius: 4px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
         .btn-danger {
-            background: #dc3545;
+            background: #ff0000;
             color: white;
+            border-color: #ff0000;
+        }
+        
+        .btn-danger:hover {
+            background: white;
+            color: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
         }
         
         .btn-warning {
-            background: #ffc107;
+            background: #ffaa00;
             color: black;
+            border-color: #ffaa00;
+        }
+        
+        .btn-warning:hover {
+            background: black;
+            color: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
         }
         
         .hidden {
             display: none;
+        }
+        
+        h1 {
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        h2 {
+            color: #00ff00 !important;
+            text-shadow: 0 0 5px #00ff00;
         }
     </style>
 </head>
 <body>
     <!-- Login Form -->
     <div id="loginForm" class="login-form">
-        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Login to Chatroom</h2>
+        <h2 style="text-align: center; margin-bottom: 30px; color: #00ff00;">Login to Chatroom</h2>
         <form onsubmit="login(event)">
             <div class="form-group">
                 <label for="loginUsername">Username:</label>
@@ -410,7 +460,7 @@ HTML_TEMPLATE = '''
     
     <!-- Register Form -->
     <div id="registerForm" class="register-form hidden">
-        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Create Account</h2>
+        <h2 style="text-align: center; margin-bottom: 30px; color: #00ff00;">Create Account</h2>
         <form onsubmit="register(event)">
             <div class="form-group">
                 <label for="regUsername">Username:</label>
@@ -464,7 +514,7 @@ HTML_TEMPLATE = '''
     
     <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel hidden">
-        <h2 style="text-align: center; margin-bottom: 30px; color: #667eea;">Admin Dashboard</h2>
+        <h2 style="text-align: center; margin-bottom: 30px; color: #00ff00;">Admin Dashboard</h2>
         
         <div class="admin-section">
             <h3>Settings</h3>
@@ -847,7 +897,7 @@ def register():
     
     if not username or not password:
         return jsonify({'success': False, 'message': 'Username and password are required'})
-    
+
     try:
         conn = get_db_connection()
         password_hash = hash_password(password)
